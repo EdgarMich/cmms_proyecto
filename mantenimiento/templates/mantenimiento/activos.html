@@ -1,0 +1,67 @@
+{% extends 'mantenimiento/base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark">📋 Inventario de Activos</h2>
+            <p class="text-muted">Gestión de maquinaria y equipos de la planta.</p>
+        </div>
+        
+        {# SOLO EL SUPERVISOR PUEDE AGREGAR ACTIVOS #}
+        {% if user.is_staff %}
+        <a href="{% url 'crear_activo' %}" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-lg"></i> Agregar Activo
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        {% for activo in activos %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm border-0 bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-light text-primary p-3 rounded-3 me-3">
+                            <i class="bi bi-cpu" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <span class="badge bg-light text-primary border mb-1">{{ activo.codigo }}</span>
+                            <h5 class="card-title fw-bold mb-0">{{ activo.descripcion }}</h5>
+                        </div>
+                    </div>
+                    
+                    <hr class="text-muted opacity-25">
+                    
+                    <div class="mb-3">
+                        <p class="mb-1 text-secondary">
+                            <i class="bi bi-geo-alt text-primary"></i> <strong>Ubicación:</strong> {{ activo.area.nombre }}
+                        </p>
+                        <p class="mb-0">
+                            {% if activo.estatus_activo %}
+                                <span class="text-success small"><i class="bi bi-check-circle-fill"></i> Operativo</span>
+                            {% else %}
+                                <span class="text-danger small"><i class="bi bi-x-circle-fill"></i> Fuera de Servicio</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    {# SOLO EL SUPERVISOR PUEDE EDITAR #}
+                    {% if user.is_staff %}
+                    <div class="d-grid mt-4">
+                        <a href="{% url 'editar_activo' activo.id %}" class="btn btn-outline-secondary btn-sm fw-bold">
+                            <i class="bi bi-pencil"></i> Editar Detalles
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h4 class="text-muted">No hay activos registrados.</h4>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

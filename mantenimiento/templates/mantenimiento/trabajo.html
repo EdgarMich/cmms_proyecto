@@ -1,0 +1,67 @@
+{% extends 'mantenimiento/base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark">🛠️ Mi Lista de Trabajo</h2>
+        <p class="text-muted">Órdenes de mantenimiento asignadas para este mes.</p>
+    </div>
+
+    <div class="row">
+        {% for orden in ordenes %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm border-0 border-top border-4 {% if orden.estado == 'PROCESO' %}border-info{% else %}border-primary{% endif %} bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-light text-primary border mb-2">{{ orden.plan.activo.codigo }}</span>
+                            <h5 class="card-title fw-bold mb-0">{{ orden.plan.activo.descripcion }}</h5>
+                            
+                            <p class="text-primary fw-bold mb-0" style="font-size: 0.85rem;">
+                                <i class="bi bi-geo-alt-fill"></i> Área: {{ orden.plan.activo.area.nombre }}
+                            </p>
+                        </div>
+                        {% if orden.estado == 'PROCESO' %}
+                            <span class="badge rounded-pill bg-info text-white">En Proceso</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="card-text text-secondary mb-4">
+                        <i class="bi bi-tools"></i> <strong>Tarea:</strong> {{ orden.plan.plantilla.nombre }}<br>
+                        <i class="bi bi-calendar-event"></i> <small class="text-muted">Límite: {{ orden.fecha_fin_ventana|date:"d M Y" }}</small>
+                    </p>
+
+                    <div class="d-grid gap-2">
+                        {% if orden.estado == 'PENDIENTE' %}
+                            <form method="POST" action="{% url 'comenzar_orden' orden.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary fw-bold py-2 w-100 shadow-sm">
+                                    ▶️ Comenzar Trabajo
+                                </button>
+                            </form>
+                        {% elif orden.estado == 'PROCESO' %}
+                            <form method="POST" action="{% url 'finalizar_orden' orden.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success fw-bold py-2 w-100 shadow-sm">
+                                    ✅ Finalizar Tarea
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="card bg-white border-0 py-5 shadow-sm">
+                <div class="card-body">
+                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                    <h4 class="text-muted mt-3">No tienes trabajos pendientes por ahora.</h4>
+                    <p class="mb-0 text-secondary">¡Buen trabajo! Todo está al día en la planta.</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

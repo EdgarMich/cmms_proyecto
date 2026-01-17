@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso CMMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .card-login { width: 100%; max-width: 400px; border-radius: 15px; }
+        .btn-login { background-color: #2c3e50; color: white; }
+        .btn-login:hover { background-color: #1a252f; color: white; }
+    </style>
+</head>
+<body>
+    <div class="card card-login shadow-lg border-0">
+        <div class="card-body p-5">
+            <div class="text-center mb-4">
+                <h1 class="h3 mb-3 fw-bold text-dark">🔐 Acceso CMMS</h1>
+                <p class="text-muted">Gestión de Mantenimiento</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                    <div class="alert alert-danger py-2 small">
+                        Credenciales incorrectas. Intenta de nuevo.
+                    </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Número de Empleado</label>
+                    <input type="text" name="username" class="form-control" placeholder="Ej: 1045" required autofocus>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold small">Contraseña</label>
+                    <input type="password" name="password" class="form-control" placeholder="••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-login w-100 py-2 fw-bold shadow-sm">Ingresar al Sistema</button>
+            </form>
+        </div>
+        <div class="card-footer text-center bg-light py-3 border-0 rounded-bottom-4">
+            <small class="text-muted">¿Olvidaste tu clave? Contacta al Supervisor.</small>
+        </div>
+    </div>
+</body>
+</html>

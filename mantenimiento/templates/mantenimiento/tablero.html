@@ -1,0 +1,117 @@
+{% extends 'mantenimiento/base.html' %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2 class="fw-bold text-dark">📊 Gestión de Mantenimiento</h2>
+        <span class="badge bg-secondary">Usuario: {{ user.username }}</span>
+    </div>
+    <div class="col-auto">
+        {# SOLO EL SUPERVISOR (STAFF) PUEDE VER ESTOS BOTONES #}
+        {% if user.is_staff %}
+            <a href="{% url 'crear_plan' %}" class="btn btn-success shadow-sm">
+                <i class="bi bi-plus-circle"></i> Nuevo Plan
+            </a>
+            <a href="{% url 'generar_ordenes' %}" class="btn btn-primary shadow-sm">
+                <i class="bi bi-arrow-repeat"></i> Generar Órdenes
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card p-4 mb-4 text-center border-start border-4 border-info shadow-sm">
+            <h6 class="text-muted text-uppercase small fw-bold">Activos en Sistema</h6>
+            <h2 class="display-5 fw-bold">{{ total_activos }}</h2>
+        </div>
+        
+        <div class="card p-4 border-start border-4 border-primary shadow-sm">
+            <h6 class="text-muted text-uppercase small fw-bold mb-3">Resumen del Mes</h6>
+            <div class="d-flex justify-content-between mb-2">
+                <span><i class="bi bi-clock-history text-warning"></i> Pendientes:</span>
+                <span class="fw-bold">{{ pendientes }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span><i class="bi bi-gear-wide-connected text-info"></i> En Proceso:</span>
+                <span class="fw-bold">{{ en_proceso }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span><i class="bi bi-check-circle text-success"></i> Completadas:</span>
+                <span class="fw-bold">{{ completadas }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-4 h-100 shadow-sm">
+            <h5 class="fw-bold mb-4 text-center">Cumplimiento del Mes</h5>
+            <div style="position: relative; height:300px;">
+                <canvas id="graficaMantenimiento"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card p-4 shadow-sm">
+            <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-line"></i> Rendimiento Semanal: Tareas Completadas</h5>
+            <div style="height: 250px;">
+                <canvas id="graficaSemanal"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfica de Dona
+    const ctxDona = document.getElementById('graficaMantenimiento');
+    new Chart(ctxDona, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completado', 'Pendiente', 'En Proceso'],
+            datasets: [{
+                data: [{{ completadas|default:0 }}, {{ pendientes|default:0 }}, {{ en_proceso|default:0 }}],
+                backgroundColor: ['#27ae60', '#f39c12', '#3498db'],
+                borderWidth: 0,
+                cutout: '70%'
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // Gráfica de Barras (Lunes a Domingo con datos reales)
+    const ctxBarra = document.getElementById('graficaSemanal');
+    new Chart(ctxBarra, {
+        type: 'bar',
+        data: {
+            labels: {{ labels_semanal|safe }}, 
+            datasets: [{
+                label: 'Tareas Completadas',
+                data: {{ datos_semanal|safe }}, 
+                backgroundColor: '#27ae60',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { stepSize: 1 },
+                    grid: { color: 'rgba(0,0,0,0.05)' } 
+                },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+{% endblock %}
